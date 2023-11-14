@@ -200,7 +200,7 @@ public class InitializationHandler {
 	public ExpressionResult initialize(final ILocation loc, final LeftHandSide lhsRaw, final CType targetCTypeRaw,
 			final InitializerResult initializerRaw, final IASTNode hook) {
 		final boolean onHeap;
-		if (lhsRaw != null && lhsRaw instanceof VariableLHS) {
+		if (lhsRaw instanceof VariableLHS) {
 			onHeap = mCHandler.isHeapVar(((VariableLHS) lhsRaw).getIdentifier());
 		} else {
 			onHeap = false;
@@ -244,9 +244,10 @@ public class InitializationHandler {
 
 		{
 			final boolean nondet = initializerInfo != null && initializerInfo.isMakeNondeterministicInitialization();
-			assert !onHeap || !nondet || !initializerInfo.getOverapprs().isEmpty() : "on heap variables get "
-					+ "intitialized to 0, so they are never nondeterministically initialized, except when they are"
-					+ "overapproximated string literals";
+			assert !onHeap || !nondet || !initializerInfo.getOverapprs().isEmpty() : """
+					on heap variables get \
+					intitialized to 0, so they are never nondeterministically initialized, except when they are\
+					overapproximated string literals""";
 		}
 
 		/*
@@ -427,7 +428,7 @@ public class InitializationHandler {
 
 			final LRValue currentFieldLhs;
 			if (onHeap) {
-				assert lhsIfAny != null && lhsIfAny instanceof HeapLValue;
+				assert lhsIfAny instanceof HeapLValue;
 				currentFieldLhs = constructAddressForStructField(loc, (HeapLValue) structBaseLhsToInitialize, i);
 			} else if (lhsIfAny != null) {
 				currentFieldLhs = CTranslationUtil.constructOffHeapStructAccessLhs(loc,
@@ -475,7 +476,7 @@ public class InitializationHandler {
 			 * constructed for this purpose.
 			 */
 			final List<Expression> fieldValues =
-					fieldLrValues.stream().map(fieldLrValue -> fieldLrValue.getValue()).collect(Collectors.toList());
+					fieldLrValues.stream().map(LRValue::getValue).collect(Collectors.toList());
 			final StructConstructor initializationValue = ExpressionFactory.constructStructConstructor(loc,
 					cStructType.getFieldIds(), fieldValues.toArray(new Expression[fieldValues.size()]));
 
@@ -886,7 +887,7 @@ public class InitializationHandler {
 			final boolean onHeap, final ExpressionResultBuilder initialization) {
 		final LRValue arrayLhsToInitialize;
 		if (onHeap) {
-			assert lhsIfAny != null && lhsIfAny instanceof HeapLValue;
+			assert lhsIfAny instanceof HeapLValue;
 			arrayLhsToInitialize = lhsIfAny;
 		} else {
 			arrayLhsToInitialize = obtainLocalLValueToInitialize(loc, (LocalLValue) lhsIfAny, cType, initialization);
@@ -1059,7 +1060,7 @@ public class InitializationHandler {
 			}
 			final CArray cArray = (CArray) cType;
 			final BigInteger innerCount = countNumberOfPrimitiveElementInType(cArray.getValueType(), hook);
-			final BigInteger bound = mTypeSizes.extractIntegerValue(cArray.getBound());
+			final BigInteger bound = mTypeSizes.extractIntegerValue(cArray.getBound(), cArray.getBoundType());
 			return innerCount.multiply(bound);
 		}
 		throw new AssertionError("Cannot count the primitive elements in type " + cType.getClass().getSimpleName());
@@ -1203,12 +1204,14 @@ public class InitializationHandler {
 				final ExpressionResult exprResult =
 						convertInitResultWithExpressionResult(loc, targetCType, initializerResult, hook);
 
-				assert exprResult.getDeclarations().isEmpty() : "the declarations necessary for a StringLiteral "
-						+ " should be registered in StaticObjectsHandler directly (because the need to be global"
-						+ "boogie declarations)";
-				assert exprResult.getStatements().isEmpty() : "the statements necessary for a StringLiteral "
-						+ " should be registered in StaticObjectsHandler directly (because the need to be global"
-						+ "boogie declarations)";
+				assert exprResult.getDeclarations().isEmpty() : """
+						the declarations necessary for a StringLiteral \
+						 should be registered in StaticObjectsHandler directly (because the need to be global\
+						boogie declarations)""";
+				assert exprResult.getStatements().isEmpty() : """
+						the statements necessary for a StringLiteral \
+						 should be registered in StaticObjectsHandler directly (because the need to be global\
+						boogie declarations)""";
 
 				final ExpressionResult onlyRValueExprResult = new ExpressionResultBuilder()
 						.setLrValue(exprResult.getLrValue()).addOverapprox(exprResult.getOverapprs()).build();
@@ -1308,10 +1311,8 @@ public class InitializationHandler {
 			 * union type. In the latter case, the initial value of the object, including unnamed members, is that of
 			 * the expression.
 			 */
-			if (rest.peekFirst().isInitializerList() || (
-			// TODO: make a more general compatibility check, for example for array and pointer
-			rest.peekFirst().hasRootExpressionResult() && TypeHandler.isCompatibleType(cellType,
-					rest.peekFirst().getRootExpressionResult().getLrValue().getCType()))) {
+			if (rest.peekFirst().isInitializerList() || rest.peekFirst().hasRootExpressionResult() && TypeHandler
+					.isCompatibleType(cellType, rest.peekFirst().getRootExpressionResult().getLrValue().getCType())) {
 				/*
 				 * case "{", i.e. one more brace opens Then the cell is initialized with the list belonging to that
 				 * brace (until the matching brace). No residue is taken over if too many elements are left.
@@ -1498,8 +1499,8 @@ public class InitializationHandler {
 		private final List<InitializerResult> mUnusedListEntries;
 
 		private InitializerInfo(final ExpressionResult expressionResult, final List<InitializerResult> rest) {
-			assert expressionResult.getLrValue() == null
-					|| expressionResult.getLrValue() instanceof RValue : "switch to RValue first!";
+			assert expressionResult.getLrValue() == null || expressionResult.getLrValue() instanceof RValue
+					: "switch to RValue first!";
 			mExpressionResult = expressionResult;
 			mOverApprs = expressionResult.getOverapprs();
 			mElementInitInfos = Collections.emptyMap();
@@ -1622,7 +1623,7 @@ public class InitializationHandler {
 	public Result handleDesignatedInitializer(final IDispatcher main, final LocationFactory locationFactory,
 			final CASTDesignatedInitializer node) {
 		final ILocation loc = locationFactory.createCLocation(node);
-		if (node.getDesignators().length == 1 && (node.getDesignators()[0] instanceof CASTFieldDesignator)) {
+		if (node.getDesignators().length == 1 && node.getDesignators()[0] instanceof CASTFieldDesignator) {
 			// a field designator, as in "struct field"
 			final CASTFieldDesignator fieldDesignator = (CASTFieldDesignator) node.getDesignators()[0];
 			final String fieldDesignatorName = fieldDesignator.getName().toString();
@@ -1642,7 +1643,7 @@ public class InitializationHandler {
 			} else {
 				throw new UnsupportedSyntaxException(loc, "Unexpected result");
 			}
-		} else if (node.getDesignators().length == 1 && (node.getDesignators()[0] instanceof CASTArrayDesignator)) {
+		} else if (node.getDesignators().length == 1 && node.getDesignators()[0] instanceof CASTArrayDesignator) {
 			// designator denotes some field in an array;
 			// one designator means a one-dimensional array "access" (I think)
 			final CASTArrayDesignator arrayDesignator = (CASTArrayDesignator) node.getDesignators()[0];
