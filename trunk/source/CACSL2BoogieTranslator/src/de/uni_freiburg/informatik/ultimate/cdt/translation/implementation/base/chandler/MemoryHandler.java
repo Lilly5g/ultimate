@@ -2613,6 +2613,10 @@ public class MemoryHandler {
 				stmt.add(ExpressionTranslation.modelUnsupportedFeature(loc,
 						"write for union with floats in the HoenickeLindenmann_Original memory model"));
 			}
+			if (fieldType.getUnderlyingType() instanceof CArray && fieldType.isIncomplete()) {
+				// Assignment of structs ignores flexible arrays, https://en.cppreference.com/w/c/language/struct
+				continue;
+			}
 			final StructAccessExpression sae = ExpressionFactory.constructStructAccessExpression(loc, value, fieldId);
 			final Offset fieldOffset = mTypeSizeAndOffsetComputer.constructOffsetForField(loc, valueType, fieldId);
 			if (fieldOffset.isBitfieldOffset()) {
