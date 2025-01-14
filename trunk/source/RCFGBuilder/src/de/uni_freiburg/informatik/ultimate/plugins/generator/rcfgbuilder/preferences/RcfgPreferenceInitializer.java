@@ -61,11 +61,11 @@ public class RcfgPreferenceInitializer extends UltimatePreferenceInitializer {
 
 	// some solver commands
 	public static final String Z3_NO_EXTENSIONAL_ARRAYS =
-			"z3 SMTLIB2_COMPLIANT=true -memory:1024 -smt2 -in -t:12000 auto_config=false smt.array.extensional=false";
+			"z3 SMTLIB2_COMPLIANT=true -smt2 -in -t:12000 auto_config=false smt.array.extensional=false";
 	public static final String Z3_NO_MBQI =
-			"z3 SMTLIB2_COMPLIANT=true -memory:1024 -smt2 -in -t:12000 auto_config=false smt.mbqi=false";
-	public static final String Z3_DEFAULT = "z3 SMTLIB2_COMPLIANT=true -memory:1024 -smt2 -in -t:12000";
-	public static final String Z3_LOW_TIMEOUT = "z3 SMTLIB2_COMPLIANT=true -memory:1024 -smt2 -in -t:2000";
+			"z3 SMTLIB2_COMPLIANT=true -smt2 -in -t:12000 auto_config=false smt.mbqi=false";
+	public static final String Z3_DEFAULT = "z3 SMTLIB2_COMPLIANT=true -smt2 -in -t:12000";
+	public static final String Z3_LOW_TIMEOUT = "z3 SMTLIB2_COMPLIANT=true -smt2 -in -t:2000";
 	public static final String CVC4 = "cvc4 --incremental --print-success --lang smt --tlimit-per=12000";
 	public static final String Princess = "princess +incremental +stdin -timeout=12000";
 
