@@ -84,9 +84,10 @@ public class CACSLBacktranslationValueProvider
 			return step.getEndColumn() - 1;
 		}
 		if ((stepInfo.contains(StepInfo.CONDITION_EVAL_TRUE) || stepInfo.contains(StepInfo.CONDITION_EVAL_FALSE))
-				&& step instanceof CLocation) {
+				&& step instanceof final CLocation cloc) {
 			// Use the starting location of the parent (should be the corresponding if/while)
-			return ((CLocation) step).getParent().getStartColumn();
+			final CLocation parent = cloc.getParent();
+			return parent == null ? -1 : parent.getStartColumn();
 		}
 		return step.getStartColumn();
 	}
