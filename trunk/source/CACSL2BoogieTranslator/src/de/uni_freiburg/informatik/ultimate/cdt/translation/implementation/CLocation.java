@@ -35,7 +35,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.eclipse.cdt.core.dom.ast.IASTFileLocation;
-import org.eclipse.cdt.core.dom.ast.IASTFunctionDefinition;
 import org.eclipse.cdt.core.dom.ast.IASTNode;
 
 import de.uni_freiburg.informatik.ultimate.cdt.translation.LineDirectiveMapping;
@@ -77,13 +76,15 @@ public class CLocation extends CACSLLocation {
 		return mNodes.stream().map(IASTNode::getFileLocation).filter(Objects::nonNull);
 	}
 
+	private static <T> T getUniqueElementOrNull(final Stream<T> stream) {
+		return stream.collect(
+				Collectors.collectingAndThen(Collectors.toSet(), x -> x.size() == 1 ? x.iterator().next() : null));
+	}
+
 	@Override
 	public String getFileName() {
-		final Set<String> fileNames = getValidFileLocations()
-				.map(x -> getOriginalLocation(x.getStartingLineNumber(), x.getFileName()).getSecond())
-				.collect(Collectors.toSet());
-		// If there is a unique filename, return it or null otherwise
-		return fileNames.size() == 1 ? fileNames.iterator().next() : null;
+		return getUniqueElementOrNull(getValidFileLocations()
+				.map(x -> getOriginalLocation(x.getStartingLineNumber(), x.getFileName()).getSecond()));
 	}
 
 	@Override
@@ -219,24 +220,19 @@ public class CLocation extends CACSLLocation {
 
 	@Override
 	public String getFunction() {
-		final Set<IASTFunctionDefinition> scopes =
-				mNodes.stream().map(CdtASTUtils::findScope).collect(Collectors.toSet());
-		if (scopes.size() != 1) {
-			return null;
-		}
-		return scopes.iterator().next().getDeclarator().getName().toString();
+		return getUniqueElementOrNull(
+				mNodes.stream().map(x -> CdtASTUtils.findScope(x).getDeclarator().getName().toString()));
 	}
 
 	/**
 	 * Returns a location for the parent node of this.
 	 */
 	public CLocation getParent() {
-		final Set<IASTNode> parentNodes = mNodes.stream().map(IASTNode::getParent).collect(Collectors.toSet());
-		if (parentNodes.size() != 1) {
+		final IASTNode uniqueParent = getUniqueElementOrNull(mNodes.stream().map(IASTNode::getParent));
+		if (uniqueParent != null) {
 			return null;
 		}
-		return new CLocation(parentNodes.iterator().next(), ignoreDuringBacktranslation(), mLineDirectiveMapping,
-				mLineOffsetComputer);
+		return new CLocation(uniqueParent, ignoreDuringBacktranslation(), mLineDirectiveMapping, mLineOffsetComputer);
 	}
 
 	public CLocation createIgnoreCopy() {
