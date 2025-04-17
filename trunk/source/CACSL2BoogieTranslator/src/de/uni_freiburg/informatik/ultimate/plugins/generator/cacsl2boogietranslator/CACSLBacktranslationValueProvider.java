@@ -72,7 +72,8 @@ public class CACSLBacktranslationValueProvider
 		if ((stepInfo.contains(StepInfo.CONDITION_EVAL_TRUE) || stepInfo.contains(StepInfo.CONDITION_EVAL_FALSE))
 				&& step instanceof CLocation) {
 			// Use the starting location of the parent (should be the corresponding if/while)
-			return ((CLocation) step).getParent().getStartLine();
+			final CLocation parent = ((CLocation) step).getParent();
+			return parent != null ? parent.getStartLine() : -1;
 		}
 		return step.getStartLine();
 	}
