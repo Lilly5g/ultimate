@@ -229,7 +229,7 @@ public class CLocation extends CACSLLocation {
 	 */
 	public CLocation getParent() {
 		final IASTNode uniqueParent = getUniqueElementOrNull(mNodes.stream().map(IASTNode::getParent));
-		if (uniqueParent != null) {
+		if (uniqueParent == null) {
 			return null;
 		}
 		return new CLocation(uniqueParent, ignoreDuringBacktranslation(), mLineDirectiveMapping, mLineOffsetComputer);
