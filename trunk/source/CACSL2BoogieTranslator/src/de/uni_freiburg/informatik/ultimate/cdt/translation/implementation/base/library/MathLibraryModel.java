@@ -515,4 +515,9 @@ public class MathLibraryModel implements ILibraryModel {
 				// most efficient floating-point type at least as wide as double -> We choose double
 				new TypeModel("double_t", new CPrimitive(CPrimitives.DOUBLE)));
 	}
+
+	@Override
+	public Collection<ConstantModel> getConstantModels() {
+		return List.of();
+	}
 }

@@ -494,4 +494,16 @@ public class PthreadLibraryModel implements ILibraryModel {
 				new TypeModel("pthread_mutex_t", new CPrimitive(CPrimitives.INT)),
 				new TypeModel("pthread_rwlock_t", new CPrimitive(CPrimitives.INT)));
 	}
+
+	@Override
+	public Collection<ConstantModel> getConstantModels() {
+		// TODO: Add more constants?
+		// TODO: Model PTHREAD_MUTEX_INITIALIZER properly?
+		return List
+				.of(new ConstantModel("PTHREAD_MUTEX_INITIALIZER",
+						loc -> new ExpressionResult(new RValue(
+								mExpressionTranslation.constructLiteralForIntegerType(loc,
+										new CPrimitive(CPrimitives.INT), BigInteger.ZERO),
+								new CPrimitive(CPrimitives.INT)))));
+	}
 }

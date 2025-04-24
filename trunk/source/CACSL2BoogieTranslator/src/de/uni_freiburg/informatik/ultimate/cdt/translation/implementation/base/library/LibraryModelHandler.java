@@ -44,6 +44,7 @@ import org.eclipse.cdt.core.dom.ast.IASTNode;
 import de.uni_freiburg.informatik.ultimate.cdt.translation.implementation.FlatSymbolTable;
 import de.uni_freiburg.informatik.ultimate.cdt.translation.implementation.LocationFactory;
 import de.uni_freiburg.informatik.ultimate.cdt.translation.implementation.base.IDispatcher;
+import de.uni_freiburg.informatik.ultimate.cdt.translation.implementation.base.library.ILibraryModel.IConstantModelHandler;
 import de.uni_freiburg.informatik.ultimate.cdt.translation.implementation.container.c.ICType;
 import de.uni_freiburg.informatik.ultimate.cdt.translation.implementation.exception.UnsupportedSyntaxException;
 import de.uni_freiburg.informatik.ultimate.cdt.translation.implementation.result.Result;
@@ -64,6 +65,7 @@ public class LibraryModelHandler {
 	private final LocationFactory mLocationFactory;
 	private final Map<String, IFunctionModelHandler> mFunctionModels;
 	private final Map<String, ICType> mTypeModels;
+	private final Map<String, IConstantModelHandler> mConstantModels;
 	private final Map<String, IASTNode> mFunctionTable;
 	private final FlatSymbolTable mSymboltable;
 	private final boolean mCheckErrorFunction;
@@ -79,6 +81,7 @@ public class LibraryModelHandler {
 		mLocationFactory = locationFactory;
 		mFunctionModels = getFunctionModels(libraryModels);
 		mTypeModels = getTypeModels(libraryModels);
+		mConstantModels = getConstantModels(libraryModels);
 	}
 
 	/**
@@ -127,6 +130,10 @@ public class LibraryModelHandler {
 		return mTypeModels;
 	}
 
+	public Map<String, IConstantModelHandler> getConstantModels() {
+		return mConstantModels;
+	}
+
 	private static Map<String, IFunctionModelHandler> getFunctionModels(final List<ILibraryModel> libraryModels) {
 		final IFunctionModelHandler die = (main, node, loc, name) -> {
 			throw new UnsupportedSyntaxException(loc, "Unsupported function: " + name);
@@ -151,6 +158,16 @@ public class LibraryModelHandler {
 			}
 		}
 
+		return Collections.unmodifiableMap(map);
+	}
+
+	private static Map<String, IConstantModelHandler> getConstantModels(final List<ILibraryModel> libraryModels) {
+		final Map<String, IConstantModelHandler> map = new HashMap<>();
+		for (final var model : libraryModels) {
+			for (final var cons : model.getConstantModels()) {
+				fill(map, cons.name(), cons.model());
+			}
+		}
 		return Collections.unmodifiableMap(map);
 	}
 

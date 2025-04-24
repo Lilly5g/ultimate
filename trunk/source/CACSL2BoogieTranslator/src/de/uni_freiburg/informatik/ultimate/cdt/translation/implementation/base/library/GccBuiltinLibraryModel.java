@@ -336,4 +336,9 @@ public class GccBuiltinLibraryModel implements ILibraryModel {
 		// https://gcc.gnu.org/onlinedocs/gcc/Floating-Types.html
 		return List.of(new TypeModel("__float128", new CPrimitive(CPrimitives.LONGDOUBLE)));
 	}
+
+	@Override
+	public Collection<ConstantModel> getConstantModels() {
+		return List.of();
+	}
 }

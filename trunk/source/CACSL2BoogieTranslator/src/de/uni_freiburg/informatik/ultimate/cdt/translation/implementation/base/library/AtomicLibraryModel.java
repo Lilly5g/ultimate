@@ -53,6 +53,7 @@ import de.uni_freiburg.informatik.ultimate.boogie.ast.VariableLHS;
 import de.uni_freiburg.informatik.ultimate.cdt.translation.implementation.base.IDispatcher;
 import de.uni_freiburg.informatik.ultimate.cdt.translation.implementation.base.expressiontranslation.ExpressionTranslation;
 import de.uni_freiburg.informatik.ultimate.cdt.translation.implementation.container.AuxVarInfoBuilder;
+import de.uni_freiburg.informatik.ultimate.cdt.translation.implementation.container.c.CEnum;
 import de.uni_freiburg.informatik.ultimate.cdt.translation.implementation.container.c.CPrimitive;
 import de.uni_freiburg.informatik.ultimate.cdt.translation.implementation.container.c.CPrimitive.CPrimitives;
 import de.uni_freiburg.informatik.ultimate.cdt.translation.implementation.result.ExpressionResult;
@@ -73,10 +74,8 @@ import de.uni_freiburg.informatik.ultimate.util.datastructures.DataStructureUtil
  * @author Dominik Klumpp (klumpp@informatik.uni-freiburg.de)
  */
 public class AtomicLibraryModel implements ILibraryModel {
-	/**
-	 * See MEMORY_ORDER_SEQ_CST in stdatomic.h
-	 */
-	private static final int MEMORY_ORDER_SEQ_CST = 5;
+	private static final String[] MEMORY_ORDER = { "memory_order_relaxed", "memory_order_consume",
+			"memory_order_acquire", "memory_order_release", "memory_order_acq_rel", "memory_order_seq_cst" };
 
 	private final FunctionModelHelper mHelper;
 	private final ExpressionResultTransformer mExprResultTransformer;
@@ -573,7 +572,7 @@ public class AtomicLibraryModel implements ILibraryModel {
 		// create condition checking whether all memory orders are supported
 		final CPrimitive intType = new CPrimitive(CPrimitives.INT);
 		final Expression seqCst = mExpressionTranslation.constructLiteralForIntegerType(loc, intType,
-				BigInteger.valueOf(MEMORY_ORDER_SEQ_CST));
+				BigInteger.valueOf(Arrays.asList(MEMORY_ORDER).indexOf("memory_order_seq_cst")));
 		final var conjuncts = Arrays.stream(memoryOrders)
 				.map(memoryOrder -> mExpressionTranslation.constructBinaryEqualityExpression(loc,
 						IASTBinaryExpression.op_equals, memoryOrder, intType, seqCst, intType))
@@ -608,6 +607,19 @@ public class AtomicLibraryModel implements ILibraryModel {
 				new TypeModel("atomic_long", CPrimitive.constructAtomicType(CPrimitives.LONG)),
 				new TypeModel("atomic_ulong", CPrimitive.constructAtomicType(CPrimitives.ULONG)),
 				new TypeModel("atomic_llong", CPrimitive.constructAtomicType(CPrimitives.LONGLONG)),
-				new TypeModel("atomic_ullong", CPrimitive.constructAtomicType(CPrimitives.ULONGLONG)));
+				new TypeModel("atomic_ullong", CPrimitive.constructAtomicType(CPrimitives.ULONGLONG)),
+				new TypeModel("memory_order", new CEnum("memory_order", MEMORY_ORDER)));
+	}
+
+	@Override
+	public Collection<ConstantModel> getConstantModels() {
+		final List<ConstantModel> result = new ArrayList<>();
+		final CPrimitive intType = new CPrimitive(CPrimitives.INT);
+		for (int i = 0; i < MEMORY_ORDER.length; i++) {
+			final BigInteger index = BigInteger.valueOf(i);
+			result.add(new ConstantModel(MEMORY_ORDER[i], loc -> new ExpressionResult(
+					new RValue(mExpressionTranslation.constructLiteralForIntegerType(loc, intType, index), intType))));
+		}
+		return result;
 	}
 }
