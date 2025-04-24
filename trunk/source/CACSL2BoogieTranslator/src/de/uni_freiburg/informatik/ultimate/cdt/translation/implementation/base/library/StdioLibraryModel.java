@@ -473,7 +473,8 @@ public class StdioLibraryModel implements ILibraryModel {
 		// We just chose the same definition as GCC for now
 		return new CStructOrUnion(StructOrUnion.STRUCT, "FILE",
 				List.of("_ptr", "_cnt", "_base", "_flag", "_file", "_charbuf", "_bufsiz", "_tmpfname"),
-				List.of(charPointer, intType, charPointer, intType, intType, intType, intType, charPointer), null);
+				List.of(charPointer, intType, charPointer, intType, intType, intType, intType, charPointer),
+				List.of(-1, -1, -1, -1, -1, -1, -1, -1));
 	}
 
 	@Override
