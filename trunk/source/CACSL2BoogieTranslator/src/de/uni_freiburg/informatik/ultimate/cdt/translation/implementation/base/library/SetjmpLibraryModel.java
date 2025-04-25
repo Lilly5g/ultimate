@@ -76,26 +76,11 @@ public class SetjmpLibraryModel implements ILibraryModel {
 		return result;
 	}
 
-	@Override
-	public Collection<String> getUnsupportedFunctions() {
-		return List.of();
-	}
-
 	// For now we do not handle setjmp properly. We crash on longjmp, so it is sufficient to always return 0 for setjmp.
 	private Result handleSetjmp(final IDispatcher main, final IASTFunctionCallExpression node, final ILocation loc,
 			final String name) {
 		final CPrimitive returnType = new CPrimitive(CPrimitives.INT);
 		return new ExpressionResult(new RValue(
 				mExpressionTranslation.constructLiteralForIntegerType(loc, returnType, BigInteger.ZERO), returnType));
-	}
-
-	@Override
-	public Collection<TypeModel> getTypeModels() {
-		return List.of();
-	}
-
-	@Override
-	public Collection<ConstantModel> getConstantModels() {
-		return List.of();
 	}
 }

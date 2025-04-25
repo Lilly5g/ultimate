@@ -179,11 +179,6 @@ public class AtomicLibraryModel implements ILibraryModel {
 		return result;
 	}
 
-	@Override
-	public Collection<String> getUnsupportedFunctions() {
-		return List.of();
-	}
-
 	private Result handleAtomicClear(final IDispatcher main, final IASTFunctionCallExpression node, final ILocation loc,
 			final String name) {
 		final IASTInitializerClause[] arguments = node.getArguments();
