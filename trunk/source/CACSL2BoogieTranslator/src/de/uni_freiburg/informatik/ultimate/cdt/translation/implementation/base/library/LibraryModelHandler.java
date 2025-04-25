@@ -63,9 +63,9 @@ import de.uni_freiburg.informatik.ultimate.core.model.services.ILogger;
  */
 public class LibraryModelHandler {
 	private final LocationFactory mLocationFactory;
-	private final Map<String, IFunctionModelHandler> mFunctionModels;
-	private final Map<String, ICType> mTypeModels;
-	private final Map<String, IConstantModelHandler> mConstantModels;
+	private final Map<String, IFunctionModelHandler> mFunctionModels = new HashMap<>();
+	private final Map<String, ICType> mTypeModels = new HashMap<>();
+	private final Map<String, IConstantModelHandler> mConstantModels = new HashMap<>();
 	private final Map<String, IASTNode> mFunctionTable;
 	private final FlatSymbolTable mSymboltable;
 	private final boolean mCheckErrorFunction;
@@ -79,9 +79,7 @@ public class LibraryModelHandler {
 		mSymboltable = symboltable;
 		mCheckErrorFunction = checkErrorFunction;
 		mLocationFactory = locationFactory;
-		mFunctionModels = getFunctionModels(libraryModels);
-		mTypeModels = getTypeModels(libraryModels);
-		mConstantModels = getConstantModels(libraryModels);
+		addModels(libraryModels);
 	}
 
 	/**
@@ -127,48 +125,23 @@ public class LibraryModelHandler {
 	}
 
 	public Map<String, ICType> getTypeModels() {
-		return mTypeModels;
+		return Collections.unmodifiableMap(mTypeModels);
 	}
 
 	public Map<String, IConstantModelHandler> getConstantModels() {
-		return mConstantModels;
+		return Collections.unmodifiableMap(mConstantModels);
 	}
 
-	private static Map<String, IFunctionModelHandler> getFunctionModels(final List<ILibraryModel> libraryModels) {
+	private void addModels(final List<ILibraryModel> libraryModels) {
 		final IFunctionModelHandler die = (main, node, loc, name) -> {
 			throw new UnsupportedSyntaxException(loc, "Unsupported function: " + name);
 		};
-		final Map<String, IFunctionModelHandler> map = new HashMap<>();
 		for (final var model : libraryModels) {
-			for (final var fun : model.getFunctionModels()) {
-				fill(map, fun.functionName(), fun.functionModel());
-			}
-			for (final var unsupportedName : model.getUnsupportedFunctions()) {
-				fill(map, unsupportedName, die);
-			}
+			model.getFunctionModels().forEach(fun -> fill(mFunctionModels, fun.functionName(), fun.functionModel()));
+			model.getUnsupportedFunctions().forEach(name -> fill(mFunctionModels, name, die));
+			model.getTypeModels().forEach(type -> fill(mTypeModels, type.typeName(), type.cType()));
+			model.getConstantModels().forEach(cons -> fill(mConstantModels, cons.name(), cons.model()));
 		}
-		return Collections.unmodifiableMap(map);
-	}
-
-	private static Map<String, ICType> getTypeModels(final List<ILibraryModel> libraryModels) {
-		final Map<String, ICType> map = new HashMap<>();
-		for (final var model : libraryModels) {
-			for (final var type : model.getTypeModels()) {
-				fill(map, type.typeName(), type.cType());
-			}
-		}
-
-		return Collections.unmodifiableMap(map);
-	}
-
-	private static Map<String, IConstantModelHandler> getConstantModels(final List<ILibraryModel> libraryModels) {
-		final Map<String, IConstantModelHandler> map = new HashMap<>();
-		for (final var model : libraryModels) {
-			for (final var cons : model.getConstantModels()) {
-				fill(map, cons.name(), cons.model());
-			}
-		}
-		return Collections.unmodifiableMap(map);
 	}
 
 	private static <K, V> void fill(final Map<K, V> map, final K key, final V value) {
