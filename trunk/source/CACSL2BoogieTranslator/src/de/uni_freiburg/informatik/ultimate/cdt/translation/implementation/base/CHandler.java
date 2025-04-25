@@ -1751,26 +1751,6 @@ public class CHandler {
 			}
 		}
 
-		// deal with builtin constants
-		if ("NULL".equals(cId)) {
-			return new ExpressionResult(
-					new RValue(mExpressionTranslation.constructNullPointer(loc), CPointer.voidPointer()));
-
-		}
-		if (List.of("__PRETTY_FUNCTION__", "__FUNCTION__", "__func__").contains(cId)) {
-			final ICType returnType = new CPointer(new CPrimitive(CPrimitives.CHAR));
-			final AuxVarInfo auxvar = mAuxVarInfoBuilder.constructAuxVarInfo(loc, returnType, SFO.AUXVAR.NONDET);
-			final RValue rvalue = new RValue(auxvar.getExp(), returnType);
-			return new ExpressionResult(List.of(), rvalue, List.of(auxvar.getVarDec()), Set.of(auxvar));
-		}
-		if (!mSymbolTable.containsCSymbol(node, cIdMp) && List.of("NAN", "INFINITY", "inf").contains(cId)) {
-			return mExpressionTranslation.createNanOrInfinity(loc, cId);
-		}
-		if (mExpressionTranslation.isNumberClassificationMacro(cId)) {
-			final RValue rvalue = mExpressionTranslation.handleNumberClassificationMacro(loc, cId);
-			return new ExpressionResult(rvalue);
-		}
-
 		final String bId;
 		final ICType cType;
 		final boolean useHeap;

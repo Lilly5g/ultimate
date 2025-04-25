@@ -491,6 +491,7 @@ public class StdlibLibraryModel implements ILibraryModel {
 
 	@Override
 	public Collection<ConstantModel> getConstantModels() {
-		return List.of();
+		return List.of(new ConstantModel("NULL", loc -> new ExpressionResult(
+				new RValue(mExpressionTranslation.constructNullPointer(loc), CPointer.voidPointer()))));
 	}
 }
