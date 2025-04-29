@@ -37,6 +37,9 @@ public class StdintLibraryModel implements ILibraryModel {
 				// maximum width integer type
 				new TypeModel("intmax_t", int64),
 
+				// integer type capable of holding a pointer
+				new TypeModel("intptr_t", int32),
+
 				// unsigned integer type with width of exactly 8, 16, 32 and 64 bits respectively
 				new TypeModel("uint8_t", uint8), new TypeModel("uint16_t", uint16), new TypeModel("uint32_t", uint32),
 				new TypeModel("uint64_t", uint64),
@@ -50,7 +53,10 @@ public class StdintLibraryModel implements ILibraryModel {
 				new TypeModel("uint_least32_t", uint32), new TypeModel("uint_least64_t", uint64),
 
 				// maximum width unsigned integer type
-				new TypeModel("uintmax_t", uint64));
+				new TypeModel("uintmax_t", uint64),
+
+				// unsigned integer type capable of holding a pointer
+				new TypeModel("uintptr_t", uint32));
 	}
 
 	@Override
