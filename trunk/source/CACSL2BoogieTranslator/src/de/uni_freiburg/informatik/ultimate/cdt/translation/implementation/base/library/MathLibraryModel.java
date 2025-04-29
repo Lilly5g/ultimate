@@ -339,6 +339,18 @@ public class MathLibraryModel implements ILibraryModel {
 		result.add(new FunctionModel("__builtin_isnan",
 				(main, node, loc, name) -> handleUnaryFloatFunction(main, node, loc, "isnan")));
 
+		result.add(new FunctionModel("isgreater", (main, node, loc, name) -> handleFloatBuiltinBinaryComparison(main,
+				node, loc, name, IASTBinaryExpression.op_greaterThan)));
+		result.add(
+				new FunctionModel("isgreaterequal", (main, node, loc, name) -> handleFloatBuiltinBinaryComparison(main,
+						node, loc, name, IASTBinaryExpression.op_greaterEqual)));
+		result.add(new FunctionModel("isless", (main, node, loc, name) -> handleFloatBuiltinBinaryComparison(main, node,
+				loc, name, IASTBinaryExpression.op_lessThan)));
+		result.add(new FunctionModel("islessequal", (main, node, loc, name) -> handleFloatBuiltinBinaryComparison(main,
+				node, loc, name, IASTBinaryExpression.op_lessEqual)));
+		result.add(new FunctionModel("isunordered", this::handleFloatBuiltinIsUnordered));
+		result.add(new FunctionModel("islessgreater", this::handleFloatBuiltinIsLessGreater));
+
 		return result;
 	}
 
