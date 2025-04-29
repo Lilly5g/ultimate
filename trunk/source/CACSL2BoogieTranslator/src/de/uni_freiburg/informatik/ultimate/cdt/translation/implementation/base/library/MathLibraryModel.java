@@ -541,7 +541,7 @@ public class MathLibraryModel implements ILibraryModel {
 				new TypeModel("double_t", new CPrimitive(CPrimitives.DOUBLE)));
 	}
 
-	private ConstantModel handleNumberClassificationMacro(final String name) {
+	private ConstantModel modelNumberClassificationMacro(final String name) {
 		return new ConstantModel(name,
 				loc -> new ExpressionResult(mExpressionTranslation.handleNumberClassificationMacro(loc, name)));
 	}
@@ -552,8 +552,8 @@ public class MathLibraryModel implements ILibraryModel {
 				new ConstantModel("INFINITY", loc -> mExpressionTranslation.createNanOrInfinity(loc, "INFINITY")),
 				new ConstantModel("inf", loc -> mExpressionTranslation.createNanOrInfinity(loc, "inf")),
 				// Check if id is number classification macro according to 7.12.6 of C11.
-				handleNumberClassificationMacro("FP_NAN"), handleNumberClassificationMacro("FP_INFINITE"),
-				handleNumberClassificationMacro("FP_ZERO"), handleNumberClassificationMacro("FP_SUBNORMAL"),
-				handleNumberClassificationMacro("FP_NORMAL"));
+				modelNumberClassificationMacro("FP_NAN"), modelNumberClassificationMacro("FP_INFINITE"),
+				modelNumberClassificationMacro("FP_ZERO"), modelNumberClassificationMacro("FP_SUBNORMAL"),
+				modelNumberClassificationMacro("FP_NORMAL"));
 	}
 }
