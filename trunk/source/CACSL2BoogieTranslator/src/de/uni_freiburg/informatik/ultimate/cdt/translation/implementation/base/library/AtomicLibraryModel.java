@@ -612,8 +612,7 @@ public class AtomicLibraryModel implements ILibraryModel {
 		final CPrimitive intType = new CPrimitive(CPrimitives.INT);
 		for (int i = 0; i < MEMORY_ORDER.length; i++) {
 			final BigInteger index = BigInteger.valueOf(i);
-			result.add(new ConstantModel(MEMORY_ORDER[i], loc -> new ExpressionResult(
-					new RValue(mExpressionTranslation.constructLiteralForIntegerType(loc, intType, index), intType))));
+			result.add(new ConstantModel(MEMORY_ORDER[i], loc -> mHelper.constructIntegerLiteral(loc, index, intType)));
 		}
 		return result;
 	}
