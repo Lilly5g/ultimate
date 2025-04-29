@@ -3,6 +3,8 @@
 <benchmark tool="ultimateautomizer" displayName="UAutomizer" timelimit="90s" hardtimelimit="120s" memlimit="8 GB" cpuCores="2">
   <resultfiles></resultfiles>
 
+  <option name="--full-output"/>
+
   <rundefinition name="Automizer_unreach-call">
     <tasks name="nonPreprocessed">
       <includesfile>../../../trunk/examples/nonPreprocessed.set</includesfile>
