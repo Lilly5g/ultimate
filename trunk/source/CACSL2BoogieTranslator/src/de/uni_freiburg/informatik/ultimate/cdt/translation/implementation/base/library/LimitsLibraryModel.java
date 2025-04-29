@@ -8,26 +8,27 @@ import de.uni_freiburg.informatik.ultimate.cdt.translation.implementation.base.c
 import de.uni_freiburg.informatik.ultimate.cdt.translation.implementation.container.c.CPrimitive;
 import de.uni_freiburg.informatik.ultimate.cdt.translation.implementation.container.c.CPrimitive.CPrimitives;
 import de.uni_freiburg.informatik.ultimate.cdt.translation.implementation.result.ExpressionResult;
-import de.uni_freiburg.informatik.ultimate.cdt.translation.implementation.result.RValue;
 import de.uni_freiburg.informatik.ultimate.core.model.models.ILocation;
 
 public class LimitsLibraryModel implements ILibraryModel {
 	private final TypeSizes mTypeSizes;
+	private final FunctionModelHelper mHelper;
 
-	public LimitsLibraryModel(final TypeSizes typeSizes) {
+	public LimitsLibraryModel(final TypeSizes typeSizes, final FunctionModelHelper helper) {
 		mTypeSizes = typeSizes;
+		mHelper = helper;
 	}
 
 	private ExpressionResult getMinValue(final ILocation loc, final CPrimitives type) {
 		final var cType = new CPrimitive(type);
 		final BigInteger value = mTypeSizes.getMinValueOfPrimitiveType(cType);
-		return new ExpressionResult(new RValue(mTypeSizes.constructLiteralForIntegerType(loc, cType, value), cType));
+		return mHelper.constructIntegerLiteral(loc, value, cType);
 	}
 
 	private ExpressionResult getMaxValue(final ILocation loc, final CPrimitives type) {
 		final var cType = new CPrimitive(type);
 		final BigInteger value = mTypeSizes.getMaxValueOfPrimitiveType(cType);
-		return new ExpressionResult(new RValue(mTypeSizes.constructLiteralForIntegerType(loc, cType, value), cType));
+		return mHelper.constructIntegerLiteral(loc, value, cType);
 	}
 
 	@Override

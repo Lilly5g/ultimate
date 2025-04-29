@@ -115,21 +115,9 @@ public class FenvLibraryModel implements ILibraryModel {
 	public Collection<ConstantModel> getConstantModels() {
 		final var intType = new CPrimitive(CPrimitives.INT);
 		return List.of(
-				new ConstantModel("FE_DOWNWARD",
-						loc -> new ExpressionResult(new RValue(
-								mExpressionTranslation.constructLiteralForIntegerType(loc, intType, FE_DOWNWARD),
-								intType))),
-				new ConstantModel("FE_TONEAREST",
-						loc -> new ExpressionResult(new RValue(
-								mExpressionTranslation.constructLiteralForIntegerType(loc, intType, FE_TONEAREST),
-								intType))),
-				new ConstantModel("FE_TOWARDZERO",
-						loc -> new ExpressionResult(new RValue(
-								mExpressionTranslation.constructLiteralForIntegerType(loc, intType, FE_TOWARDZERO),
-								intType))),
-				new ConstantModel("FE_UPWARD",
-						loc -> new ExpressionResult(new RValue(
-								mExpressionTranslation.constructLiteralForIntegerType(loc, intType, FE_UPWARD),
-								intType))));
+				new ConstantModel("FE_DOWNWARD", loc -> mHelper.constructIntegerLiteral(loc, FE_DOWNWARD, intType)),
+				new ConstantModel("FE_TONEAREST", loc -> mHelper.constructIntegerLiteral(loc, FE_TONEAREST, intType)),
+				new ConstantModel("FE_TOWARDZERO", loc -> mHelper.constructIntegerLiteral(loc, FE_TOWARDZERO, intType)),
+				new ConstantModel("FE_UPWARD", loc -> mHelper.constructIntegerLiteral(loc, FE_UPWARD, intType)));
 	}
 }

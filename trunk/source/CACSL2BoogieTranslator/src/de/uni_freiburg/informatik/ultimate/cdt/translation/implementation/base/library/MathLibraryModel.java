@@ -528,25 +528,19 @@ public class MathLibraryModel implements ILibraryModel {
 				new TypeModel("double_t", new CPrimitive(CPrimitives.DOUBLE)));
 	}
 
+	private ConstantModel handleNumberClassificationMacro(final String name) {
+		return new ConstantModel(name,
+				loc -> new ExpressionResult(mExpressionTranslation.handleNumberClassificationMacro(loc, name)));
+	}
+
 	@Override
 	public Collection<ConstantModel> getConstantModels() {
 		return List.of(new ConstantModel("NAN", loc -> mExpressionTranslation.createNanOrInfinity(loc, "NAN")),
 				new ConstantModel("INFINITY", loc -> mExpressionTranslation.createNanOrInfinity(loc, "INFINITY")),
 				new ConstantModel("inf", loc -> mExpressionTranslation.createNanOrInfinity(loc, "inf")),
 				// Check if id is number classification macro according to 7.12.6 of C11.
-				new ConstantModel("FP_NAN",
-						loc -> new ExpressionResult(
-								mExpressionTranslation.handleNumberClassificationMacro(loc, "FP_NAN"))),
-				new ConstantModel("FP_INFINITE",
-						loc -> new ExpressionResult(
-								mExpressionTranslation.handleNumberClassificationMacro(loc, "FP_INFINITE"))),
-				new ConstantModel("FP_ZERO",
-						loc -> new ExpressionResult(
-								mExpressionTranslation.handleNumberClassificationMacro(loc, "FP_ZERO"))),
-				new ConstantModel("FP_SUBNORMAL",
-						loc -> new ExpressionResult(
-								mExpressionTranslation.handleNumberClassificationMacro(loc, "FP_SUBNORMAL"))),
-				new ConstantModel("FP_NORMAL", loc -> new ExpressionResult(
-						mExpressionTranslation.handleNumberClassificationMacro(loc, "FP_NORMAL"))));
+				handleNumberClassificationMacro("FP_NAN"), handleNumberClassificationMacro("FP_INFINITE"),
+				handleNumberClassificationMacro("FP_ZERO"), handleNumberClassificationMacro("FP_SUBNORMAL"),
+				handleNumberClassificationMacro("FP_NORMAL"));
 	}
 }

@@ -637,8 +637,7 @@ public class CHandler {
 				new TimeLibraryModel(helper, mExpressionTranslation, mAuxVarInfoBuilder),
 				new VariadicLibraryModel(helper, mMemoryHandler, mProcedureManager, mTypeHandler,
 						mExprResultTransformer, mExpressionTranslation, mAuxVarInfoBuilder),
-				new StdintLibraryModel(), new LimitsLibraryModel(mTypeSizes),
-				new StdboolLibraryModel(mExpressionTranslation));
+				new StdintLibraryModel(), new LimitsLibraryModel(mTypeSizes, helper), new StdboolLibraryModel(helper));
 	}
 
 	/**

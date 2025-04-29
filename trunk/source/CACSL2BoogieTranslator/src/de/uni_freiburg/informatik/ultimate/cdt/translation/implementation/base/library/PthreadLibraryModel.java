@@ -500,11 +500,7 @@ public class PthreadLibraryModel implements ILibraryModel {
 	public Collection<ConstantModel> getConstantModels() {
 		// TODO: Add more constants?
 		// TODO: Model PTHREAD_MUTEX_INITIALIZER properly?
-		return List
-				.of(new ConstantModel("PTHREAD_MUTEX_INITIALIZER",
-						loc -> new ExpressionResult(new RValue(
-								mExpressionTranslation.constructLiteralForIntegerType(loc,
-										new CPrimitive(CPrimitives.INT), BigInteger.ZERO),
-								new CPrimitive(CPrimitives.INT)))));
+		return List.of(new ConstantModel("PTHREAD_MUTEX_INITIALIZER",
+				loc -> mHelper.constructIntegerLiteral(loc, BigInteger.ZERO, new CPrimitive(CPrimitives.INT))));
 	}
 }
