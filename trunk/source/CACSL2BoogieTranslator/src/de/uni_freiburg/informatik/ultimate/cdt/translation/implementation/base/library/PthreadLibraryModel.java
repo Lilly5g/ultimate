@@ -492,7 +492,8 @@ public class PthreadLibraryModel implements ILibraryModel {
 				new TypeModel("__pthread_list_t", CPointer.voidPointer()),
 				// TODO: We may want to use a specific type to simplify the mutex/lock handling
 				new TypeModel("pthread_mutex_t", new CPrimitive(CPrimitives.INT)),
-				new TypeModel("pthread_rwlock_t", new CPrimitive(CPrimitives.INT)));
+				new TypeModel("pthread_rwlock_t", new CPrimitive(CPrimitives.INT)),
+				new TypeModel("pthread_cond_t", new CPrimitive(CPrimitives.INT)));
 	}
 
 	@Override
