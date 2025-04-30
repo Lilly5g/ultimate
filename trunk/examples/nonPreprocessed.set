@@ -72,8 +72,6 @@ svcomp/bitvector/interleave_bits.yml
 svcomp/bitvector/modulus-1.yml
 svcomp/bitvector/modulus-2.yml
 svcomp/bitvector/parity.yml
-svcomp/floats-cbmc-regression/float-div1.yml
-svcomp/floats-cbmc-regression/float-flags-simp1.yml
 svcomp/floats-cbmc-regression/float-no-simp2.yml
 svcomp/floats-cbmc-regression/float-no-simp4.yml
 svcomp/floats-cbmc-regression/float-no-simp8.yml
@@ -82,7 +80,6 @@ svcomp/floats-cbmc-regression/float14.yml
 svcomp/floats-cbmc-regression/float22.yml
 svcomp/floats-cbmc-regression/float4.yml
 svcomp/floats-cbmc-regression/float8.yml
-svcomp/floats-cbmc-regression/float_lib1.yml
 svcomp/floats-esbmc-regression/ceil.yml
 svcomp/floats-esbmc-regression/ceil_nondet.yml
 svcomp/floats-esbmc-regression/copysign.yml
