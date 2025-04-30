@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <pthread.h>
 
-typedef unsigned long int pthread_t;
+
  
 // One global variable - changes in threads.
 int g = 0;

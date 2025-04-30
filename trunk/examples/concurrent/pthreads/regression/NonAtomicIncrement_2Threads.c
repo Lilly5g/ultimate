@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-typedef unsigned long int pthread_t;
+
 
 int x;
 

@@ -8,7 +8,7 @@
  */
 #include <pthread.h>
 
-typedef unsigned long int pthread_t;
+
 
 int x = 4;
 

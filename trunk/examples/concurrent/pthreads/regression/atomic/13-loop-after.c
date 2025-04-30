@@ -11,7 +11,7 @@
 extern void __VERIFIER_atomic_begin();
 extern void __VERIFIER_atomic_end();
 
-typedef unsigned long int pthread_t;
+
 int x = 0;
 int y = 1;
 

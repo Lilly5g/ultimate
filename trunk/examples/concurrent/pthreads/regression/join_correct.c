@@ -11,7 +11,7 @@
  */
 #include <pthread.h>
 
-typedef unsigned long int pthread_t;
+
 
 void* increment(void *arg)
 {

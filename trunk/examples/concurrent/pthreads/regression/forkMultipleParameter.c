@@ -8,7 +8,7 @@
 #include <pthread.h>
 #include <stdio.h>
 
-typedef unsigned long int pthread_t;
+
 
 
 void *add(void *n) {

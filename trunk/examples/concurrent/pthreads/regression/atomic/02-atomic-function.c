@@ -10,7 +10,7 @@
 
 #include <pthread.h>
 
-typedef unsigned long int pthread_t;
+
 int g = 0;
 
 void *foo(void *arg) {

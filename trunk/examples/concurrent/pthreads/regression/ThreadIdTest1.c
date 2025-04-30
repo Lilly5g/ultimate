@@ -9,7 +9,7 @@
 #include <pthread.h>
 #include <stdio.h>
 
-typedef unsigned long int pthread_t;
+
 int x = 0;
 
 

@@ -12,7 +12,7 @@
 #include <pthread.h>
 #include <stdio.h>
 
-typedef unsigned long int pthread_t;
+
 
 void *worker_thread(void *arg) {
     int x = 0;

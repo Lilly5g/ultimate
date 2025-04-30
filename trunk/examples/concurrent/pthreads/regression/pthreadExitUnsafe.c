@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-typedef unsigned long int pthread_t;
+
 
 void *foo(void *n) {
     while (1) {

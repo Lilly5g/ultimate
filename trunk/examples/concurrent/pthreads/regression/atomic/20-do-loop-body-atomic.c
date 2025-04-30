@@ -1,7 +1,7 @@
 //#Safe
 
 #include <pthread.h>
-typedef unsigned long int pthread_t;
+
 extern void __VERIFIER_atomic_begin();
 extern void __VERIFIER_atomic_end();
 extern _Bool __VERIFIER_nondet_bool(void);

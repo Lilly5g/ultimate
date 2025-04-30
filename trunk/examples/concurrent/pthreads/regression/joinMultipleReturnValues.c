@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef unsigned long int pthread_t;
+
 
 
 struct int_bool {
