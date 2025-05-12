@@ -55,7 +55,7 @@ public class ManagedScript {
 	protected final IUltimateServiceProvider mServices;
 	protected final Script mScript;
 	protected final ILogger mLogger;
-	protected final VariableManager mVariableManager;
+	protected VariableManager mVariableManager;
 	private final SkolemFunctionManager mSkolemFunctionManager;
 
 	private Object mLockOwner;
@@ -144,6 +144,10 @@ public class ManagedScript {
 
 	public LBool checkSat(final Object lockOwner) throws SMTLIBException {
 		assert lockOwner == mLockOwner : generateLockErrorMessage(lockOwner, mLockOwner);
+		if (Thread.interrupted()) {
+			mScript.exit();
+			throw new SMTLIBException("Thread Was Interrupted, crashing before checkSat");
+		}
 		return mScript.checkSat();
 	}
 
@@ -272,6 +276,13 @@ public class ManagedScript {
 		void releaseLock();
 	}
 
+	public TermVariable getBaseTermVariable(final TermVariable tv) {
+		if (!mVariableManager.mTv2Basename.containsKey(tv)) {
+			throw new AssertionError("Termvariable " + tv + " not known by VariableManager!");
+		}
+		return mVariableManager.mBasename2FirstTV.get(mVariableManager.mTv2Basename.get(tv));
+	}
+
 	/**
 	 * Constructs fresh TermVariables (i.e., TermVariables that have not been used before). Each constructed
 	 * TermVariable is named as follows. The name start with the prefix "v_". Next follows the "basename" which is a
@@ -293,6 +304,9 @@ public class ManagedScript {
 		 * TermVariable to obtain a unique but very similar name for the new copy.
 		 */
 		private final Map<TermVariable, String> mTv2Basename = new HashMap<>();
+
+		// maps the basename to the first seen termvariable of that basename
+		private final Map<String, TermVariable> mBasename2FirstTV = new HashMap<>();
 
 		private final Set<String> mVariableNames = new HashSet<>();
 
@@ -330,6 +344,7 @@ public class ManagedScript {
 				mLogger.warn("TermVariable " + tv
 						+ " not constructed by VariableManager. Cannot ensure absence of name clashes.");
 				basename = SmtUtils.removeSmtQuoteCharacters(tv.getName());
+				mTv2Basename.put(tv, basename);
 			}
 			final TermVariable result = constructFreshTermVariable(basename, tv.getSort());
 			return result;
@@ -344,6 +359,7 @@ public class ManagedScript {
 			}
 			final TermVariable result = mScript.variable(varname, sort);
 			mTv2Basename.put(result, varname);
+			mBasename2FirstTV.put(varname, result);
 			return result;
 		}
 	}
