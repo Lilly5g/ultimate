@@ -39,10 +39,12 @@ import de.uni_freiburg.informatik.ultimate.core.lib.models.BasePayloadContainer;
 import de.uni_freiburg.informatik.ultimate.core.lib.models.VisualizationNode;
 import de.uni_freiburg.informatik.ultimate.core.lib.models.annotation.Check;
 import de.uni_freiburg.informatik.ultimate.core.lib.models.annotation.CheckMessageProvider;
+import de.uni_freiburg.informatik.ultimate.core.lib.models.annotation.TestGoalAnnotation;
 import de.uni_freiburg.informatik.ultimate.core.model.models.ILocation;
 import de.uni_freiburg.informatik.ultimate.core.model.models.ISimpleAST;
 import de.uni_freiburg.informatik.ultimate.core.model.models.IWalkable;
 import de.uni_freiburg.informatik.ultimate.core.model.models.annotation.Spec;
+import de.uni_freiburg.informatik.ultimate.logic.Term;
 
 /**
  *
@@ -57,6 +59,9 @@ public class BoogieASTNode extends BasePayloadContainer implements ISimpleAST<Bo
 	protected static final Map<Class<?>, Predicate<BoogieASTNode>> VALIDATORS = new HashMap<>();
 
 	private static final String IDENTIFIER_REGEX = "[a-zA-z\\.$#_'`~^\\\\\\?]+[a-zA-z.$#_'~^\\\\\\?\\!\\d]*";
+
+	// The formula created in @Statements2TransFormula representing this statement
+	private Term mFormulaRepresentation = null;
 
 	static {
 		final Predicate<BoogieASTNode> iexprValidator = instance -> {
@@ -109,6 +114,14 @@ public class BoogieASTNode extends BasePayloadContainer implements ISimpleAST<Bo
 		return new BoogieASTWrapper(null, obj);
 	}
 
+	public void setSMTFormula(final Term formula) {
+		mFormulaRepresentation = formula;
+	}
+
+	public Term getSMTFormula() {
+		return mFormulaRepresentation;
+	}
+
 	@Override
 	public VisualizationNode getVisualizationGraph() {
 		return new VisualizationNode(this);
@@ -132,6 +145,9 @@ public class BoogieASTNode extends BasePayloadContainer implements ISimpleAST<Bo
 
 	public static Check createDefaultCheck(final BoogieASTNode node) {
 		if (node instanceof AssertStatement) {
+			if (node.getPayload().getAnnotations().containsKey(TestGoalAnnotation.class.getName())) {
+				return new Check(Spec.TEST_GOAL_ANNOTATION);
+			}
 			final NamedAttribute[] attrib = ((AssertStatement) node).getAttributes();
 			if (attrib != null && attrib.length > 0) {
 				final String namedAttribStr = BoogiePrettyPrinter.print(attrib);
