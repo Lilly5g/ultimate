@@ -1189,7 +1189,7 @@ public class CHandler {
 		// We should probably change the "<=" in the line below to "==". This change
 		// will however cost performance and maybe we want make a decision only after we
 		// saw real-world examples where this is a problem.
-		if (castTargetByteSize.compareTo(operandTypeByteSize) <= 0) {
+		if (castTargetByteSize.compareTo(operandTypeByteSize) == 0) {
 			// type sizes are already compatible
 			return;
 		}
