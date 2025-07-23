@@ -70,6 +70,7 @@ public final class TranslationSettings {
 	private final boolean mCheckErrorFunction;
 	private final boolean mCheckAssertions;
 	private final boolean mCheckAcsl;
+	private final boolean mCheckWitnesses;
 	private final boolean mIsSvcompMemtrackCompatibilityMode;
 	private final boolean mCheckAllocationPurity;
 	private final boolean mCheckMemoryLeakInMain;
@@ -95,6 +96,7 @@ public final class TranslationSettings {
 
 		mCheckAssertions = ups.getBoolean(CACSLPreferenceInitializer.LABEL_CHECK_ASSERTIONS);
 		mCheckAcsl = ups.getBoolean(CACSLPreferenceInitializer.LABEL_CHECK_ACSL);
+		mCheckWitnesses = ups.getBoolean(CACSLPreferenceInitializer.LABEL_CHECK_WITNESSES);
 		mEntryFunction = ups.getString(CACSLPreferenceInitializer.MAINPROC_LABEL);
 		mCheckErrorFunction = ups.getBoolean(CACSLPreferenceInitializer.LABEL_ERROR);
 		mSmtBoolArraysWorkaround = ups.getBoolean(CACSLPreferenceInitializer.LABEL_SMT_BOOL_ARRAYS_WORKAROUND);
@@ -140,9 +142,10 @@ public final class TranslationSettings {
 			final CheckMode checkPointerSubtractionAndComparisonValidity, final MemoryModel memoryModelPreference,
 			final boolean fpToIeeeBvExtension, final boolean smtBoolArraysWorkaround, final String entryFunction,
 			final boolean checkErrorFunction, final boolean checkAssertions, final boolean checkAcsl,
-			final boolean isSvcompMemtrackCompatibilityMode, final boolean checkAllocationPurity,
-			final boolean checkMemoryLeakInMain, final CheckMode checkSignedIntegerBounds, final boolean checkDataRaces,
-			final boolean useConstantArrays, final boolean useStoreChains, final boolean enableFesetround,
+			final boolean checkWitnesses, final boolean isSvcompMemtrackCompatibilityMode,
+			final boolean checkAllocationPurity, final boolean checkMemoryLeakInMain,
+			final CheckMode checkSignedIntegerBounds, final boolean checkDataRaces, final boolean useConstantArrays,
+			final boolean useStoreChains, final boolean enableFesetround,
 			final FloatingPointRoundingMode initialRoundingMode, final boolean adaptMemoryModelResolutionOnPointerCasts,
 			final int stringOverapproximationThreshold, final UndefinedFunctionBehaviour undefinedFunctionBehaviour,
 			final boolean enforceIfForConditional) {
@@ -163,6 +166,7 @@ public final class TranslationSettings {
 		mCheckErrorFunction = checkErrorFunction;
 		mCheckAssertions = checkAssertions;
 		mCheckAcsl = checkAcsl;
+		mCheckWitnesses = checkWitnesses;
 		mIsSvcompMemtrackCompatibilityMode = isSvcompMemtrackCompatibilityMode;
 		mCheckAllocationPurity = checkAllocationPurity;
 		mCheckMemoryLeakInMain = checkMemoryLeakInMain;
@@ -254,6 +258,10 @@ public final class TranslationSettings {
 		return mCheckAcsl;
 	}
 
+	public boolean checkWitnesses() {
+		return mCheckWitnesses;
+	}
+
 	public boolean isSvcompMemtrackCompatibilityMode() {
 		return mIsSvcompMemtrackCompatibilityMode;
 	}
@@ -316,7 +324,7 @@ public final class TranslationSettings {
 				mPointerIntegerConversion, mCheckIfFreedPointerIsValid, mCheckPointerDerefValidity,
 				mCheckPointerSubtractionAndComparisonValidity, memoryModel, mFpToIeeeBvExtension,
 				mSmtBoolArraysWorkaround, mEntryFunction, mCheckErrorFunction, mCheckAssertions, mCheckAcsl,
-				mIsSvcompMemtrackCompatibilityMode, mCheckAllocationPurity, mCheckMemoryLeakInMain,
+				mCheckWitnesses, mIsSvcompMemtrackCompatibilityMode, mCheckAllocationPurity, mCheckMemoryLeakInMain,
 				mCheckSignedIntegerBounds, mCheckDataRaces, mUseConstantArrays, mUseStoreChains, mEnableFesetround,
 				mInitialRoundingMode, mAdaptMemoryModelResolutionOnPointerCasts, mStringOverapproximationThreshold,
 				mUndefinedFunctionBehaviour, mEnforceIfForConditional);

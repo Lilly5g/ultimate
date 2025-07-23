@@ -235,7 +235,7 @@ public class MainTranslator {
 		final ACSLHandler acslHandler = new ACSLHandler(witness != null, flatSymbolTable, expressionTranslation,
 				typeHandler, procedureManager, locationFactory, mainCHandler);
 		final MainDispatcher mainDispatcher = new MainDispatcher(mLogger, witness, locationFactory, typeHandler,
-				mainCHandler, ppHandler, acslHandler);
+				mainCHandler, ppHandler, acslHandler, translationSettings);
 
 		final CHandlerTranslationResult result = mainDispatcher.dispatch(nodes);
 

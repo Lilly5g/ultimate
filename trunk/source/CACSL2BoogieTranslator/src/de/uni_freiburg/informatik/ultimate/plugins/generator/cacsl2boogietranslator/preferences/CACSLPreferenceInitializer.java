@@ -68,6 +68,9 @@ public class CACSLPreferenceInitializer extends UltimatePreferenceInitializer {
 	private static final String DESC_CHECK_ACSL =
 			"Check if the annotations in ACSL (assert, loop invariant, function contracts) are valid. "
 					+ "In addition, ghost code is also considered.";
+	public static final String LABEL_CHECK_WITNESSES = "Check witness validity";
+	private static final String DESC_CHECK_WITNESSES =
+			"Check for witness validity. If set to false, the invariants are used as hints for verification instead.";
 	public static final String LABEL_CHECK_FREE_VALID = "Check if freed pointer was valid";
 	public static final String LABEL_CHECK_MEMORY_LEAK_IN_MAIN =
 			"Check for the main procedure if all allocated memory was freed";
@@ -281,6 +284,8 @@ public class CACSLPreferenceInitializer extends UltimatePreferenceInitializer {
 						new UltimatePreferenceItem<>(LABEL_CHECK_ASSERTIONS, false, DESC_CHECK_ASSERTIONS,
 								PreferenceType.Boolean),
 						new UltimatePreferenceItem<>(LABEL_CHECK_ACSL, true, DESC_CHECK_ACSL, PreferenceType.Boolean),
+						new UltimatePreferenceItem<>(LABEL_CHECK_WITNESSES, true, DESC_CHECK_WITNESSES,
+								PreferenceType.Boolean),
 						new UltimatePreferenceItem<>(LABEL_CHECK_POINTER_DEREF_VALIDITY, CheckMode.CHECK,
 								DESC_CHECK_POINTER_DEREF_VALIDITY, PreferenceType.Combo, CheckMode.values()),
 						new UltimatePreferenceItem<>(LABEL_CHECK_FREE_VALID, true, PreferenceType.Boolean),
