@@ -794,6 +794,13 @@ def parse_args():
         help="Activate witness validation mode (if supported) and specify a .graphml file as witness",
     )
     parser.add_argument(
+        "--witness-guided",
+        nargs=1,
+        metavar="<file>",
+        type=check_file,
+        help="Activate witness-guided verification mode (if supported) and specify a .yml file as witness",
+    )
+    parser.add_argument(
         "--witness-type",
         choices=["correctness_witness", "violation_witness"],
         help="Specify the type of witness you want to validate",
@@ -850,6 +857,11 @@ def parse_args():
         if args.witness_type:
             check_witness_type(witness, args.witness_type)
 
+    if args.witness_guided:
+        witness = args.witness_guided[0]
+        if args.witness_type:
+            check_witness_type(witness, args.witness_type)
+
     if args.config:
         configdir = args.config[0]
 
@@ -867,13 +879,17 @@ def parse_args():
         print_err("You did not specify a C file with your witness")
         sys.exit(ExitCode.FAIL_NO_INPUT_FILE)
 
-    if not args.validate and witness is not None:
-        print_err("You did specify a witness but not --validate")
+    if not (args.validate or args.witness_guided) and witness is not None:
+        print_err("You did specify a witness but not --validate or --witness-guided")
         sys.exit(ExitCode.FAIL_MULTIPLE_FILES)
 
     if args.validate and witness is None:
         print_err("You did specify --validate but no witness")
         sys.exit(ExitCode.FAIL_NO_WITNESS_TO_VALIDATE)
+
+    if args.witness_guided and witness is None:
+        print_err("You did specify --witness-guided but no witness")
+        sys.exit(ExitCode.FAIL_NO_INPUT_FILE)
 
     if args.validate:
         return (
@@ -882,6 +898,16 @@ def parse_args():
             [args.file[0], witness],
             args.full_output,
             args.validate,
+            args.witness_type,
+            extras,
+        )
+    elif args.witness_guided:
+        return (
+            property_file,
+            args.architecture,
+            [args.file[0], witness],
+            args.full_output,
+            None,
             args.witness_type,
             extras,
         )
