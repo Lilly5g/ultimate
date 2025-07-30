@@ -502,7 +502,7 @@ def write_ltl(ltlformula):
     return ltl_file_path
 
 
-def create_cli_settings(prop, validate_witness, witness_type, architecture, input_files):
+def create_cli_settings(prop, validate_witness, witness_guided, witness_type, architecture, input_files):
     # append detected init method
     ret = ["--cacsl2boogietranslator.entry.function", prop.get_init_method()]
 
@@ -542,6 +542,10 @@ def create_cli_settings(prop, validate_witness, witness_type, architecture, inpu
         ret.append(witnessname)
         ret.append("--witnessprinter.write.witness.besides.input.file")
         ret.append("false")
+
+        if witness_guided:
+            ret.append("--cacsl2boogietranslator.check.witness.validity")
+            ret.append("false")
 
         ret.append("--witnessprinter.graph.data.specification")
         ret.append(prop.get_content())
@@ -898,6 +902,7 @@ def parse_args():
             [args.file[0], witness],
             args.full_output,
             args.validate,
+            None,
             args.witness_type,
             extras,
         )
@@ -908,6 +913,7 @@ def parse_args():
             [args.file[0], witness],
             args.full_output,
             None,
+            args.witness_guided,
             args.witness_type,
             extras,
         )
@@ -918,6 +924,7 @@ def parse_args():
             [args.file[0]],
             args.full_output,
             args.validate,
+            None,
             None,
             extras,
         )
@@ -998,6 +1005,7 @@ def main():
         input_files,
         verbose,
         validate_witness,
+        witness_guided,
         witness_type,
         extras,
     ) = parse_args()
@@ -1014,7 +1022,7 @@ def main():
     # create manual settings that override settings files for witness passthrough (collecting various things)
     # and for witness validation
     cli_arguments = create_cli_settings(
-        prop, validate_witness, witness_type, architecture, input_files
+        prop, validate_witness, witness_guided, witness_type, architecture, input_files
     )
     if not validate_witness:
         input_files = add_ltl_file_if_necessary(prop, input_files)
