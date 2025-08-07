@@ -44,9 +44,9 @@ public class CounterTrace {
 	public enum BoundTypes {
 		LESS(-2), LESSEQUAL(-1), NONE(0), GREATEREQUAL(1), GREATER(2);
 
-		private int mVal;
+		private final int mVal;
 
-		private BoundTypes(final int i) {
+		BoundTypes(final int i) {
 			mVal = i;
 		}
 

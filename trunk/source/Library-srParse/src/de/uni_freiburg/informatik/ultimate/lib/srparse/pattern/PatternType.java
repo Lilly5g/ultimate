@@ -128,8 +128,8 @@ public abstract class PatternType<T extends PatternType<?>> {
 			final List<Entry<CounterTrace, PhaseEventAutomata>> peas = new ArrayList<>(cts.size());
 			int i = 0;
 			for (final CounterTrace ct : cts) {
-				final Trace2PeaCompilerStateless compiler =
-						new Trace2PeaCompilerStateless(logger, name + "_ct" + i, ct, durations.getConstNames());
+				final Trace2PeaCompilerStateless compiler = new Trace2PeaCompilerStateless(logger, name + "_ct" + i, ct,
+						durations.getConstNames());
 				++i;
 				peas.add(new Pair<>(ct, compiler.getResult()));
 			}
@@ -305,6 +305,7 @@ public abstract class PatternType<T extends PatternType<?>> {
 			}
 			return true;
 		}
+
 	}
 
 }

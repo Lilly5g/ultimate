@@ -38,6 +38,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.Timer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
@@ -57,6 +58,7 @@ import de.uni_freiburg.informatik.ultimate.lib.modelcheckerutils.cfg.variables.P
 import de.uni_freiburg.informatik.ultimate.lib.modelcheckerutils.smt.predicates.BasicPredicate;
 import de.uni_freiburg.informatik.ultimate.lib.pea.CDD;
 import de.uni_freiburg.informatik.ultimate.lib.pea.CounterTrace;
+import de.uni_freiburg.informatik.ultimate.lib.pea.CounterTrace.DCPhase;
 import de.uni_freiburg.informatik.ultimate.lib.pea.Phase;
 import de.uni_freiburg.informatik.ultimate.lib.pea.PhaseEventAutomata;
 import de.uni_freiburg.informatik.ultimate.lib.pea.Transition;
@@ -107,6 +109,10 @@ import de.uni_freiburg.informatik.ultimate.util.datastructures.relation.Pair;
  */
 public class RtInconcistencyConditionGenerator {
 
+	public boolean preCheck = true;
+	public boolean preCheckOnlySets = true;
+	public static long startTime;
+
 	private static final boolean ONLY_CONJUNCTIVE_INVARIANTS = false;
 	private static final boolean SIMPLIFY_BEFORE_QELIM = false;
 	private static final boolean TRY_SOLVER_BEFORE_QELIM = false;
@@ -118,6 +124,9 @@ public class RtInconcistencyConditionGenerator {
 	private static final boolean PRINT_INDIVIDUAL_RT_INCONSISTENCY_CHECK = false;
 	private static final String SOLVER_LOG_DIR = null;
 	// private static final String SOLVER_LOG_DIR = "C:\\Users\\firefox\\Desktop\\dump\\";
+
+	// rti Pre-Check
+	public static final List<reqsWithAttributes> reqs = null;
 
 	private final IReqSymbolTable mReqSymboltable;
 	private final Term mPrimedInvariant;
@@ -159,8 +168,8 @@ public class RtInconcistencyConditionGenerator {
 		mReqSymboltable = symboltable;
 		mServices = services;
 		mLogger = logger;
-		mPQELogger =
-				mServices.getLoggingService().getLogger(RtInconcistencyConditionGenerator.class.getName() + ".PQE");
+		mPQELogger = mServices.getLoggingService()
+				.getLogger(RtInconcistencyConditionGenerator.class.getName() + ".PQE");
 		// manually disable log flood
 		mPQELogger.setLevel(LogLevel.WARN);
 		mServices.getLoggingService().setLogLevel(QuantifierPusher.class, LogLevel.WARN);
@@ -188,8 +197,8 @@ public class RtInconcistencyConditionGenerator {
 		mQelimQuery = 0;
 		mCddToSmt = new CddToSmt(services, peaResultUtil, mScript, mBoogie2Smt, boogieDeclarations, mReqSymboltable);
 
-		final boolean useEpsilon =
-				services.getPreferenceProvider(Activator.PLUGIN_ID).getBoolean(Pea2BoogiePreferences.LABEL_USE_EPSILON);
+		final boolean useEpsilon = services.getPreferenceProvider(Activator.PLUGIN_ID)
+				.getBoolean(Pea2BoogiePreferences.LABEL_USE_EPSILON);
 		if (useEpsilon) {
 			mLogger.info("Using epsilon=%s for rt-consistency checks", SmtUtils.toString(durations.computeEpsilon()));
 			mEpsilonTransformer = new EpsilonTransformer(mScript, durations.computeEpsilon(), mReqSymboltable);
@@ -228,6 +237,32 @@ public class RtInconcistencyConditionGenerator {
 	/**
 	 * Return a subset of requirements that should be used for generating rt-inconsistency checks.
 	 */
+	public List<Entry<PatternType<?>, PhaseEventAutomata>> getRelevantRequirementsPreCheck(
+			final List<ReqPeas> reqPeas) {
+		// we only consider automata that do not represent invariants or which have a disjunctive invariant
+		List<Entry<PatternType<?>, PhaseEventAutomata>> rtr = new ArrayList<>();
+
+		final Timer timer = new Timer();
+		final long startTime = System.nanoTime();
+		if (preCheck) {
+			final RtInconsistencyPreCheck rtInconsistencyPreCheck = new RtInconsistencyPreCheck(mLogger);
+			rtr = rtInconsistencyPreCheck.makePreCheckList(reqPeas);
+		}
+		final long endTime = System.nanoTime(); // End timing
+		final long duration = endTime - startTime; // In nanoseconds
+		mLogger.info("Execution time pre Check: " + duration / 1_000_000 + " ms");
+		final long startTimeFullCheck = System.nanoTime();
+		// if (true) {
+		// List<Entry<PatternType<?>, PhaseEventAutomata>> rtrpc = new ArrayList<>();
+		// rtrpc = rtiPreCheck(reqPeas);
+		// }
+		if (mSeparateInvariantHandling) {
+			return rtr.stream().filter(a -> filterReqs(a.getValue())).collect(Collectors.toList());
+		}
+		return rtr;
+
+	}
+
 	public List<Entry<PatternType<?>, PhaseEventAutomata>> getRelevantRequirements(final List<ReqPeas> reqPeas) {
 		// we only consider automata that do not represent invariants or which have a disjunctive invariant
 		final List<Entry<PatternType<?>, PhaseEventAutomata>> rtr = new ArrayList<>();
@@ -237,10 +272,81 @@ public class RtInconcistencyConditionGenerator {
 				rtr.add(new Pair<>(pattern, pea.getValue()));
 			}
 		}
+		final Timer timer = new Timer();
+		final long startTime = System.nanoTime();
 
 		if (mSeparateInvariantHandling) {
 			return rtr.stream().filter(a -> filterReqs(a.getValue())).collect(Collectors.toList());
 		}
+		return rtr;
+	}
+
+	public static final class reqsWithAttributes {
+
+		public boolean mtimed = false;
+		public ReqPeas mReqPea;
+		public List<CDD[]> mExitConditions;
+		public boolean mChainLinkRequirement;
+
+		public reqsWithAttributes(final boolean timed, final ReqPeas req, final List<CDD[]> exitConditions,
+				final boolean chainLinkRequirement) {
+			mtimed = timed;
+			mReqPea = req;
+			mExitConditions = exitConditions;
+			mChainLinkRequirement = chainLinkRequirement;
+			// TODO Auto-generated constructor stub
+		}
+
+		public static reqsWithAttributes getAttributes(final ReqPeas req) {
+
+			final reqsWithAttributes newly = new reqsWithAttributes(false, req, null, false);
+			newly.getExitConditions();
+			return newly;
+
+		}
+
+		public ReqPeas getReqPEA() {
+			return mReqPea;
+		}
+
+		private void getExitConditions() {
+			// TODO Auto-generated method stub
+			final List<Entry<CounterTrace, PhaseEventAutomata>> reqList = getReqPEA().getCounterTrace2Pea();
+			final List<CDD[]> exitConditions = new ArrayList<>();
+			for (final Map.Entry<CounterTrace, PhaseEventAutomata> req : reqList) {
+				final List<String> clocks = req.getValue().getClocks();
+				if (clocks.size() > 0) {
+					mtimed = true;
+				}
+				final CounterTrace ct = req.getKey();
+				final DCPhase[] Phases = ct.getPhases();
+				final DCPhase Penultimate = Phases[Phases.length - 2];
+				final CDD exitCondition = Penultimate.getInvariant().negate();
+				final CDD[] ExitOptions = exitCondition.toDNF();
+				exitConditions.add(ExitOptions);
+				if (ExitOptions.length > 1) {
+					mChainLinkRequirement = true;
+				}
+
+			}
+
+			mExitConditions = exitConditions;
+		}
+
+	}
+
+	// Check if CDD contains an Or Statement, returns true if
+
+	public List<Entry<PatternType<?>, PhaseEventAutomata>> rtiPreCheck(final List<ReqPeas> reqPeas) {
+		final List<Entry<PatternType<?>, PhaseEventAutomata>> rtr = new ArrayList<>();
+		final List<reqsWithAttributes> reqs = new ArrayList<>();
+
+		for (final ReqPeas reqPea : reqPeas) {
+			reqs.add(reqsWithAttributes.getAttributes(reqPea));
+		}
+
+		// final List<Entry<CDD, List<reqsWithAttributes>>> invariantList = MakeDictVariables(reqs);
+
 		return rtr;
 	}
 
@@ -396,8 +502,8 @@ public class RtInconcistencyConditionGenerator {
 		}
 		assert subst.values().stream().anyMatch(oldVars::contains) : "Var with same name already exists";
 		final Term subForm = PureSubstitution.apply(mScript, subst, formula.getSubformula());
-		final Term renamedQuantifiedFormula =
-				mScript.quantifier(formula.getQuantifier(), newQuantVars, subForm, new Term[0]);
+		final Term renamedQuantifiedFormula = mScript.quantifier(formula.getQuantifier(), newQuantVars, subForm,
+				new Term[0]);
 		mLogger.info(prefix + ": Renamed quantified formula: " + renamedQuantifiedFormula.toStringDirect());
 	}
 
