@@ -228,6 +228,35 @@ public class RtInconcistencyConditionGenerator {
 	/**
 	 * Return a subset of requirements that should be used for generating rt-inconsistency checks.
 	 */
+<<<<<<< Updated upstream
+=======
+	public List<Entry<PatternType<?>, PhaseEventAutomata>> getRelevantRequirementsPreCheck(
+			final List<ReqPeas> reqPeas) {
+		// we only consider automata that do not represent invariants or which have a disjunctive invariant
+		List<Entry<PatternType<?>, PhaseEventAutomata>> rtr = new ArrayList<>();
+
+		final Timer timer = new Timer();
+		final long startTime = System.nanoTime();
+		if (preCheck) {
+			final RtInconsistencyPreCheck rtInconsistencyPreCheck = new RtInconsistencyPreCheck(mLogger);
+			rtr = rtInconsistencyPreCheck.makePreCheckList(reqPeas, mCddToSmt, mScript);
+		}
+		final long endTime = System.nanoTime(); // End timing
+		final long duration = endTime - startTime; // In nanoseconds
+		mLogger.info("Execution time pre Check: " + duration / 1_000_000 + " ms");
+		final long startTimeFullCheck = System.nanoTime();
+		// if (true) {
+		// List<Entry<PatternType<?>, PhaseEventAutomata>> rtrpc = new ArrayList<>();
+		// rtrpc = rtiPreCheck(reqPeas);
+		// }
+		if (mSeparateInvariantHandling) {
+			return rtr.stream().filter(a -> filterReqs(a.getValue())).collect(Collectors.toList());
+		}
+		return rtr;
+
+	}
+
+>>>>>>> Stashed changes
 	public List<Entry<PatternType<?>, PhaseEventAutomata>> getRelevantRequirements(final List<ReqPeas> reqPeas) {
 		// we only consider automata that do not represent invariants or which have a disjunctive invariant
 		final List<Entry<PatternType<?>, PhaseEventAutomata>> rtr = new ArrayList<>();
